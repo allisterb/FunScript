@@ -110,7 +110,7 @@ type JSExpr =
       | Boolean b -> b.ToString().ToLower()
       | Integer i -> sprintf "%d" i
       | Number f -> sprintf "%f" f
-      | String str -> sprintf @"""%s""" (System.Web.HttpUtility.JavaScriptStringEncode(str))
+      | String str -> sprintf @"""%s""" (HttpUtil.JavaScriptStringEncode(str))
       | Reference ref -> (!scope).ObtainNameScope ref FromReference |> fst
       | Object propExprs ->
          let filling =

@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AttributeHelpers.fs" />
+    <Compile Include="ExprExtensions.fs" />
+    <Compile Include="Core\LanguagePrimitives.fs" />
+    <Compile Include="Core\GenericConstants.fs" />
+    <Compile Include="Core\Array.fs" />
+    <Compile Include="Core\ResizeArray.fs" />
+    <Compile Include="Core\list.fs" />
+    <Compile Include="Core\Option.fs" />
+    <Compile Include="Core\Seq.fs" />
+    <Compile Include="Core\Range.fs" />
+    <Compile Include="Core\Set.fs" />
+    <Compile Include="Core\Map.fs" />
+    <Compile Include="Core\String.fs" />
+    <Compile Include="Core\Regex.fs" />
+    <Compile Include="Core\Events.fs" />
+    <Compile Include="Core\Time.fs" />
+    <Compile Include="Core\Async.fs" />
+    <Compile Include="Core\Type.fs" />
+    <Compile Include="Core\StringWriter.fs" />
+    <Compile Include="Core\Dictionaries.fs" />
+    <Compile Include="Core\Web.fs" />
+    <Compile Include="JavaScriptNameMapper.fs" />
+    <Compile Include="AST.fs" />
+    <Compile Include="QuoteExtensions.fs" />
+    <Compile Include="InternalCompiler.fs" />
+    <Compile Include="ReturnStrategies.fs" />
+    <Compile Include="CompilerComponent.fs" />
+    <Compile Include="ExpressionReplacer.fs" />
+    <Compile Include="Reflection.fs" />
+    <Compile Include="PrimitiveTypes.fs" />
+    <Compile Include="Objects.fs" />
+    <Compile Include="ReflectedDefinitions.fs" />
+    <Compile Include="Comparison.fs" />
+    <Compile Include="Arithmetic.fs" />
+    <Compile Include="Logic.fs" />
+    <Compile Include="LetBindings.fs" />
+    <Compile Include="LambdaApplication.fs" />
+    <Compile Include="ControlFlow.fs" />
+    <Compile Include="Arrays.fs" />
+    <Compile Include="ResizeArrays.fs" />
+    <Compile Include="Dictionaries.fs" />
+    <Compile Include="Lists.fs" />
+    <Compile Include="Seqs.fs" />
+    <Compile Include="Options.fs" />
+    <Compile Include="Sets.fs" />
+    <Compile Include="Maps.fs" />
+    <Compile Include="CommonOperators.fs" />
+    <Compile Include="Strings.fs" />
+    <Compile Include="Regexs.fs" />
+    <Compile Include="Times.fs" />
+    <Compile Include="TypeConversion.fs" />
+    <Compile Include="OtherMappings.fs" />
+    <Compile Include="Asyncs.fs" />
+    <Compile Include="UnionTypes.fs" />
+    <Compile Include="RecordTypes.fs" />
+    <Compile Include="Tuples.fs" />
+    <Compile Include="Compiler.fs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.3.4" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\FunScript.Interop\FunScript.Interop.NETStandard.fsproj" />
+    <ProjectReference Include="..\FunScript.Util\FunScript.Util.csproj" />
+  </ItemGroup>
+</Project>

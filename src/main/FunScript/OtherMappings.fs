@@ -60,11 +60,11 @@ let components =
             <@ Core.LanguagePrimitives.Lazy<_>.CreateFromValue @>
 
          ExpressionReplacer.createUnsafe 
-            <@ System.Lazy.Create @> 
+            <@ System.Lazy<_>.Create @> 
             <@ Core.LanguagePrimitives.Lazy.Create @>
 
          ExpressionReplacer.createUnsafe 
-            <@ System.Lazy.CreateFromValue @> 
+            <@ System.Lazy<_>.CreateFromValue @> 
             <@ Core.LanguagePrimitives.Lazy.CreateFromValue @>
 
          ExpressionReplacer.createUnsafe 
