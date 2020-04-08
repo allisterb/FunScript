@@ -46,7 +46,7 @@ let compile outputAssembly references (source : string) =
         let parameters = CompilerParameters(OutputAssembly = outputAssembly)
         let msCorLib = typeof<int>.Assembly.Location
         parameters.ReferencedAssemblies.Add msCorLib |> ignore<int>
-        let fsCorLib = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll"
+        let fsCorLib = @"FSharp.Core.dll"
         parameters.ReferencedAssemblies.Add fsCorLib |> ignore<int>
         let funScriptInterop = typeof<FunScript.JSEmitInlineAttribute>.Assembly.Location
         parameters.ReferencedAssemblies.Add funScriptInterop |> ignore<int>
@@ -176,9 +176,9 @@ let generateAssemblies tempDir postBuildStep inputs  =
 //    |> Async.RunSynchronously
     
 let loadDefaultLib() =
-    let ass = typeof<AST.AmbientClassBodyElement>.Assembly
-    use stream = ass.GetManifestResourceStream("lib.d.ts")
-    use reader = new StreamReader(stream)
+    //let ass = typeof<AST.AmbientClassBodyElement>.Assembly
+    //use stream = ass.GetManifestResourceStream("lib.d.ts")
+    use reader = new StreamReader(File.OpenRead("lib.d.ts"))
     "lib.d.ts", "lib", reader.ReadToEnd()
 
 let blacklist = 

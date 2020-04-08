@@ -597,9 +597,7 @@ module private Generate =
                     Identifier.fromPropertyName x |> fst, defaultArg y i)
             let code =
                 [
-                    yield sprintf """
-namespace %s
-type %s ="""               namespaceId nameId
+                    yield sprintf "type %s =" nameId
                 
                     for name, i in cases do
                         yield sprintf """
@@ -741,10 +739,7 @@ type %s ="""               namespaceId nameId
                 | _ -> fixedPs |> Seq.map localTypeCode |> String.concat " * "
             let returnCode = localTypeCode fixedR
             let delegateDeclaration =
-                sprintf """
-namespace %s
-type %s = delegate of %s -> %s
-"""                 (namespaceComponentCode t) localSignature parameterCode returnCode
+                sprintf "type %s = delegate of %s -> %s" localSignature parameterCode returnCode
             Some(delegateDeclaration,
                  dependencies,
                  typeRefToTypeKey t, 
@@ -770,9 +765,7 @@ type %s = delegate of %s -> %s
             //TypeRef(ns, fixedGps), fixedGcs, fixedSts, interfaceSignature
 
             let interfaceDeclaration =
-                sprintf """
-namespace %s
-type %s ="""        (namespaceComponentCode t) localSignature
+                sprintf "type %s =" localSignature
             let interfaceBodyEls =
                 fixedSts |> List.map (extractNamespace t |> localTypeReferenceCode)
                 |> List.map (fun typeRef ->
@@ -1078,13 +1071,7 @@ type %s ="""        (namespaceComponentCode t) localSignature
 
     let typeExtensions moduleName typeImports isMemberDefined signaturesByKey moduleElements =
         // TODO: Perhaps choose namespace based on type extensions. However, this may reduce discoverability.
-        let precursor i = sprintf """
-namespace FunScript.TypeScript
-
-[<AutoOpen>]
-module TypeExtensions_%s_%i =
-
-"""                         moduleName i
+        let precursor i = ""
         let signaturesByKeyTest =
             signaturesByKey |> List.map (fun (x : Map<_,_>) -> x.ContainsKey)
         moduleElements |> Map.toSeq |> Seq.choose (fun ((ns, _) as typeKey, els) ->

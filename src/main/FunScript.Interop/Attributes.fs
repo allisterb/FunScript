@@ -18,6 +18,8 @@ type JSEmitInlineAttribute(emit:string) =
    inherit System.Attribute()
    member __.Emit = emit
 
+type EmitAttribute = JSEmitInlineAttribute
+
 namespace global
 
 open FunScript

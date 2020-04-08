@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="lib.d.ts" />
+    <EmbeddedResource Include="lib.d.ts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Compile Include="AST.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="TypeGenerator.fs" />
