@@ -1,4 +1,4 @@
-namespace FunScript.TypeScript
+namespace FunScript.Bindings
 
 type Globals = interface end
 type AesGcmEncryptResult = interface end

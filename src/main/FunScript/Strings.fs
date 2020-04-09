@@ -48,6 +48,10 @@ let components =
          "FSharp.Core" "Microsoft.FSharp.Core.StringModule"
          "FunScript" "FunScript.Core.String.FSharpString"
       ExpressionReplacer.createModuleMapping 
+         #if NETFRAMEWORK
          "mscorlib" "System.String"
+         #else
+         "netstandard" "System.String"
+         #endif
          "FunScript" "FunScript.Core.String"
    ] |> List.concat
