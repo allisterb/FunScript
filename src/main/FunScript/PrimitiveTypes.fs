@@ -25,7 +25,7 @@ let private primitiveValues =
       | Patterns.Value(x, t) ->
             if t.IsEnum then 
                 // TODO: Remove this hack. Replace with Attribute.
-                if t.Assembly.GetName().Name.StartsWith("FunScript.TypeScript.Binding.") then
+                if t.Assembly.GetName().Name.StartsWith("FunScript.Bindings.Base") then
                     // TODO: Add attribute for this too. It could be sanitized by this point!
                     let name = System.Enum.GetName(t, x)
                     [ yield returnStrategy.Return <| JSExpr.EmitExpr(fun (_, _) -> t.FullName + "." + name) ] 

@@ -88,8 +88,7 @@ type [<AllowNullLiteral>] CustomEventParameters =
     /// Any custom data associated with the event
     abstract detail: obj option with get, set
 
-type [<AllowNullLiteral>] ValueFn<'T, 'Datum, 'Result> =
-    [<Emit "$0($1...)">] abstract Invoke: this: 'T * datum: 'Datum * index: float * groups: U2<ResizeArray<'T>, ArrayLike<'T>> -> 'Result
+type ValueFn<'T, 'Datum, 'Result> = 'T * 'Datum * float * U2<ResizeArray<'T>, ArrayLike<'T>> -> 'Result
 
 /// TransitionLike is a helper interface to represent a quasi-Transition, without specifying the full Transition  interface in this file.
 /// For example, wherever d3-zoom allows a Transition to be passed in as an argument, it internally immediately invokes its `selection()`
@@ -620,152 +619,326 @@ and [<AllowNullLiteral>] Selection<'GElement, 'Datum, 'PElement, 'PDatum> =
     /// Returns the total number of elements in this selection.
     abstract size: unit -> float
 
-    type [<AllowNullLiteral>] SelectionFn =
-        [<Emit "$0($1...)">] abstract Invoke: unit -> Selection<HTMLElement, obj option, obj, obj>
+    /// A D3 Transition.
+    /// 
+    /// The first generic "GElement" refers to the type of the selected element(s) in the Transition.
+    /// The second generic "Datum" refers to the type of the datum of a selected element(s) in the Transition.
+    /// The third generic "PElement" refers to the type of the parent element(s) in the D3 selection in the Transition.
+    /// The fourth generic "PDatum" refers to the type of the datum of the parent element(s) in the Transition.
+and [<AllowNullLiteral>] Transition<'GElement, 'Datum, 'PElement, 'PDatum> =
+    /// <summary>For each selected element, select the first descendant element that matches the specified selector string, if any,
+    /// and returns a transition on the resulting selection. The new transition has the same id, name and timing as this transition;
+    /// however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.
+    /// 
+    /// The generic represents the type of the descendant element to be selected.</summary>
+    /// <param name="selector">CSS selector string</param>
+    abstract select: selector: string -> Transition<'DescElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, select the descendant element returned by the selector function, if any,
+    /// and returns a transition on the resulting selection. The new transition has the same id, name and timing as this transition;
+    /// however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.
+    /// 
+    /// The generic represents the type of the descendant element to be selected.</summary>
+    /// <param name="selector">A selector function, which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]).
+    /// It must return an element, or null if there is no matching element.</param>
+    abstract select: selector: ValueFn<'GElement, 'Datum, 'DescElement> -> Transition<'DescElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, select all descendant elements that match the specified selector string, if any,
+    /// and returns a transition on the resulting selection. The new transition has the same id, name and timing as this transition;
+    /// however, if a transition with the same id already exists on a selected element, the existing transition is returned for that element.
+    /// 
+    /// The first generic "DescElement" refers to the type of descendant element to be selected. The second generic "OldDatum" refers to the type of the
+    /// datum, of a selected element. This is useful when re-selecting elements with a previously set, know datum type.</summary>
+    /// <param name="selector">CSS selector string</param>
+    abstract selectAll: selector: string -> Transition<'DescElement, 'OldDatum, 'GElement, 'Datum>
+    /// <summary>For each selected element, select all descendant elements returned by the selector function, if any,
+    /// and returns a transition on the resulting selection. The new transition has the same id, name and timing as this transition;
+    /// however, if a transition with the same id already exists on a selected element, the existing transition is returned for that element.
+    /// 
+    /// The first generic "DescElement" refers to the type of descendant element to be selected. The second generic "OldDatum" refers to the type of the
+    /// datum, of a selected element. This is useful when re-selecting elements with a previously set, know datum type.</summary>
+    /// <param name="selector">A selector function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). It must return an array of elements
+    /// (or a pseudo-array, such as a NodeList), or the empty array if there are no matching elements.</param>
+    abstract selectAll: selector: ValueFn<'GElement, 'Datum, U2<ResizeArray<'DescElement>, ArrayLike<'DescElement>>> -> Transition<'DescElement, 'OldDatum, 'GElement, 'Datum>
+    /// Return the selection corresponding to this transition.
+    abstract selection: unit -> Selection<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// Returns a new transition on the same selected elements as this transition, scheduled to start when this transition ends.
+    /// The new transition inherits a reference time equal to this transition’s time plus its delay and duration.
+    /// The new transition also inherits this transition’s name, duration, and easing.
+    /// This method can be used to schedule a sequence of chained transitions.
+    /// 
+    /// A delay configured for the new transition will be relative to the previous transition.
+    abstract transition: unit -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, the attribute with the specified name will be cleared at the start of the transition.</summary>
+    /// <param name="name">Name of the attribute.</param>
+    /// <param name="value">Use null to clear the attribute.</param>
+    abstract attr: name: string * value: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, assigns the attribute tween for the attribute with the specified name to the specified target value.
+    /// The starting value of the tween is the attribute’s value when the transition starts.
+    /// The target value is the specified constant value for all elements.
+    /// 
+    /// An interpolator is chosen based on the type of the target value, using the following algorithm:
+    /// 1.) If value is a number, use interpolateNumber.
+    /// 2.) If value is a color or a string coercible to a color, use interpolateRgb.
+    /// 3.) Use interpolateString.
+    /// 
+    /// To apply a different interpolator, use transition.attrTween.</summary>
+    /// <param name="name">Name of the attribute.</param>
+    /// <param name="value">Target value for the attribute.</param>
+    abstract attr: name: string * value: U3<string, float, bool> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, assigns the attribute tween for the attribute with the specified name to the specified target value.
+    /// The starting value of the tween is the attribute’s value when the transition starts.
+    /// The target value is return value of the value function evaluated for the selected element.
+    /// 
+    /// An interpolator is chosen based on the type of the target value, using the following algorithm:
+    /// 1.) If value is a number, use interpolateNumber.
+    /// 2.) If value is a color or a string coercible to a color, use interpolateRgb.
+    /// 3.) Use interpolateString.
+    /// 
+    /// To apply a different interpolator, use transition.attrTween.</summary>
+    /// <param name="name">Name of the attribute.</param>
+    /// <param name="value">A value function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]).
+    /// A null value will clear the attribute at the start of the transition.</param>
+    abstract attr: name: string * value: ValueFn<'GElement, 'Datum, U3<string, float, bool> option> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Return the current interpolator factory for attribute with the specified name, or undefined if no such tween exists.</summary>
+    /// <param name="name">Name of attribute.</param>
+    abstract attrTween: name: string -> ValueFn<'GElement, 'Datum, (float -> string)> option
+    /// <summary>Remove the previously-assigned attribute tween of the specified name, if any.</summary>
+    /// <param name="name">Name of attribute.</param>
+    /// <param name="factory">Use null to remove previously-assigned attribute tween.</param>
+    abstract attrTween: name: string * factory: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Assign the attribute tween for the attribute with the specified name to the specified interpolator factory.
+    /// An interpolator factory is a function that returns an interpolator; when the transition starts, the factory is evaluated for each selected element.
+    /// The returned interpolator will then be invoked for each frame of the transition, in order,
+    /// being passed the eased time t, typically in the range [0, 1]. Lastly, the return value of the interpolator will be used to set the attribute value.
+    /// The interpolator must return a string.</summary>
+    /// <param name="name">Name of attribute.</param>
+    /// <param name="factory">An interpolator factory which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The interpolator factory returns a string interpolator,
+    /// which takes as its argument eased time t, typically in the range [0, 1] and returns the interpolated string.</param>
+    abstract attrTween: name: string * factory: ValueFn<'GElement, 'Datum, (float -> string)> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, the style with the specified name will be cleared at the start of the transition.</summary>
+    /// <param name="name">Name of the style.</param>
+    /// <param name="value">Use null to clear the style.</param>
+    abstract style: name: string * value: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, assigns the style tween for the style with the specified name to the specified target value with the
+    /// specified priority.
+    /// The starting value of the tween is the style’s inline value if present, and otherwise its computed value.
+    /// The target value is the specified constant value for all elements.
+    /// 
+    /// An interpolator is chosen based on the type of the target value, using the following algorithm:
+    /// 1.) If value is a number, use interpolateNumber.
+    /// 2.) If value is a color or a string coercible to a color, use interpolateRgb.
+    /// 3.) Use interpolateString.
+    /// 
+    /// To apply a different interpolator, use transition.attrTween.</summary>
+    /// <param name="name">Name of the style.</param>
+    /// <param name="value">Target value for the style.</param>
+    /// <param name="priority">An optional priority flag, either null or the string important (without the exclamation point)</param>
+    abstract style: name: string * value: U3<string, float, bool> * ?priority: TransitionStylePriority -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, assigns the style tween for the style with the specified name to the specified target value with the
+    /// specified priority.
+    /// The starting value of the tween is the style's inline value if present, and otherwise its computed value.
+    /// The target value is return value of the value function evaluated for the selected element.
+    /// 
+    /// An interpolator is chosen based on the type of the target value, using the following algorithm:
+    /// 1.) If value is a number, use interpolateNumber.
+    /// 2.) If value is a color or a string coercible to a color, use interpolateRgb.
+    /// 3.) Use interpolateString.
+    /// 
+    /// To apply a different interpolator, use transition.attrTween.</summary>
+    /// <param name="name">Name of the style.</param>
+    /// <param name="value">A value function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]).
+    /// A null value will clear the style at the start of the transition.</param>
+    /// <param name="priority">An optional priority flag, either null or the string important (without the exclamation point)</param>
+    abstract style: name: string * value: ValueFn<'GElement, 'Datum, U3<string, float, bool> option> * ?priority: TransitionStylePriority_ -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Return the current interpolator factory for style with the specified name, or undefined if no such tween exists.</summary>
+    /// <param name="name">Name of style.</param>
+    abstract styleTween: name: string -> ValueFn<'GElement, 'Datum, (float -> string)> option
+    /// <summary>Remove the previously-assigned style tween of the specified name, if any.</summary>
+    /// <param name="name">Name of style.</param>
+    /// <param name="factory">Use null to remove previously-assigned style tween.</param>
+    abstract styleTween: name: string * factory: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Assign the style tween for the style with the specified name to the specified interpolator factory.
+    /// An interpolator factory is a function that returns an interpolator; when the transition starts, the factory is evaluated for each selected element.
+    /// The returned interpolator will then be invoked for each frame of the transition, in order,
+    /// being passed the eased time t, typically in the range [0, 1]. Lastly, the return value of the interpolator will be used to set the style value.
+    /// The interpolator must return a string.</summary>
+    /// <param name="name">Name of style.</param>
+    /// <param name="factory">An interpolator factory which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The interpolator factory returns a string interpolator,
+    /// which takes as its argument eased time t, typically in the range [0, 1] and returns the interpolated string.</param>
+    /// <param name="priority">An optional priority flag, either null or the string important (without the exclamation point)</param>
+    abstract styleTween: name: string * factory: ValueFn<'GElement, 'Datum, (float -> string)> * ?priority: TransitionStyleTweenPriority -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, the text content will be cleared, replacing any existing child elements.</summary>
+    /// <param name="value">Use null to clear the text content.</param>
+    abstract text: value: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, sets the text content to the specified target value when the transition starts.
+    /// To interpolate text rather than to set it on start, use transition.tween (for example) or
+    /// append a replacement element and cross-fade opacity (for example). Text is not interpolated by default because it is usually undesirable.</summary>
+    /// <param name="value">Value used for text content</param>
+    abstract text: value: U3<string, float, bool> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, sets the text content returned by the value function for each selected element when the transition starts.
+    /// 
+    /// To interpolate text rather than to set it on start, use transition.tween (for example) or
+    /// append a replacement element and cross-fade opacity (for example). Text is not interpolated by default because it is usually undesirable.</summary>
+    /// <param name="value">A value function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]).
+    /// A null value will clear the text content at the start of the transition.</param>
+    abstract text: value: ValueFn<'GElement, 'Datum, U3<string, float, bool>> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Returns the tween with the specified name, or undefined, if no tween was previously assigned to
+    /// that name.</summary>
+    /// <param name="name">Name of tween.</param>
+    abstract tween: name: string -> ValueFn<'GElement, 'Datum, (float -> unit)> option
+    /// <summary>Removes the tween with the specified name, if a tween was previously assigned to
+    /// that name.</summary>
+    /// <param name="name">Name of tween.</param>
+    /// <param name="tweenFn">Use null to remove a previously-assigned tween.</param>
+    abstract tween: name: string * tweenFn: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, assigns the tween with the specified name with the specified value function.
+    /// The value must be specified as a function that returns a function.
+    /// When the transition starts, the value function is evaluated for each selected element.
+    /// The returned function is then invoked for each frame of the transition, in order,
+    /// being passed the eased time t, typically in the range [0, 1].</summary>
+    /// <param name="name">Name of tween.</param>
+    /// <param name="tweenFn">A tween function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The tween function returns a function
+    /// which takes as its argument eased time t, typically in the range [0, 1] and performs the tweening activities for each transition frame.</param>
+    abstract tween: name: string * tweenFn: ValueFn<'GElement, 'Datum, (float -> unit)> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// For each selected element, removes the element when the transition ends, as long as the element has no other active or pending transitions.
+    /// If the element has other active or pending transitions, does nothing.
+    abstract remove: unit -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Returns a new transition merging this transition with the specified other transition,
+    /// which must have the same id as this transition. The returned transition has the same number of groups,
+    /// the same parents, the same name and the same id as this transition.
+    /// Any missing (null) elements in this transition are filled with the corresponding element, if present (not null), from the other transition.</summary>
+    /// <param name="other">The transition to be merged.</param>
+    abstract merge: other: Transition<'GElement, 'Datum, 'PElement, 'PDatum> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
+    /// 
+    /// The new transition has the same id, name and timing as this transition; however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.</summary>
+    /// <param name="filter">A CSS selector string.</param>
+    abstract filter: filter: string -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
+    /// 
+    /// The new transition has the same id, name and timing as this transition; however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.
+    /// 
+    /// The generic refers to the type of element which will be selected after applying the filter, i.e. if the element types
+    /// contained in a pre-filter selection are narrowed to a subset as part of the filtering.</summary>
+    /// <param name="filter">A CSS selector string.</param>
+    abstract filter: filter: string -> Transition<'FilteredElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
+    /// 
+    /// The new transition has the same id, name and timing as this transition; however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.</summary>
+    /// <param name="filter">A filter function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The filter function returns a boolean indicating,
+    /// whether the selected element matches.</param>
+    abstract filter: filter: ValueFn<'GElement, 'Datum, bool> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
+    /// 
+    /// The new transition has the same id, name and timing as this transition; however, if a transition with the same id already exists on a selected element,
+    /// the existing transition is returned for that element.
+    /// 
+    /// The generic refers to the type of element which will be selected after applying the filter, i.e. if the element types
+    /// contained in a pre-filter selection are narrowed to a subset as part of the filtering.</summary>
+    /// <param name="filter">A filter function which is evaluated for each selected element, in order, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The filter function returns a boolean indicating,
+    /// whether the selected element matches.</param>
+    abstract filter: filter: ValueFn<'GElement, 'Datum, bool> -> Transition<'FilteredElement, 'Datum, 'PElement, 'PDatum>
+    /// Return the currently-assigned listener for the specified event typename on the first (non-null) selected element, if any.
+    /// If multiple typenames are specified, the first matching listener is returned.
+    abstract on: ``type``: string -> ValueFn<'GElement, 'Datum, unit> option
+    /// <summary>Remove all listeners for a given name.</summary>
+    /// <param name="typenames">Name of the event type for which the listener should be removed. To remove all listeners for a given name use ".foo"
+    /// as the typename, where foo is the name; to remove all listeners with no name, specify "." as the typename.</param>
+    /// <param name="listener">Use null to remove listeners.</param>
+    abstract on: typenames: string * listener: obj -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Add a listener to each selected element for the specified event typenames.
+    /// 
+    /// When a specified transition event is dispatched on a selected node, the specified listener will be invoked for each transitioning element.
+    /// Listeners always see the latest datum for their element, but the index is a property of the selection and is fixed when the listener is assigned;
+    /// to update the index, re-assign the listener.</summary>
+    /// <param name="listener">A listener function which will be evaluated for each selected element, being passed the current datum (d), the current index (i),
+    /// and the current group (nodes), with this as the current DOM element (nodes[i]). Listeners always see the latest datum for their element,
+    /// but the index is a property of the selection and is fixed when the listener is assigned; to update the index, re-assign the listener.</param>
+    abstract on: ``type``: string * listener: ValueFn<'GElement, 'Datum, unit> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// Returns a promise that resolves when every selected element finishes transitioning. If any element’s transition is cancelled or interrupted, the promise rejects.
+    abstract ``end``: unit -> Promise<unit>
+    /// <summary>Invoke the specified function for each selected element, passing the current datum (d),
+    /// the current index (i), and the current group (nodes), with this of the current DOM element (nodes[i]).
+    /// This method can be used to invoke arbitrary code for each selected element, and is useful for creating a context to access parent and child data simultaneously.</summary>
+    /// <param name="func">A function which is invoked for each selected element,
+    /// being passed the current datum (d), the current index (i), and the current group (nodes), with this of the current DOM element (nodes[i]).</param>
+    abstract each: func: ValueFn<'GElement, 'Datum, unit> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>Invoke the specified function exactly once, passing in this transition along with any optional arguments.
+    /// Returns this transition.</summary>
+    /// <param name="func">A function which is passed this transition as the first argument along with any optional arguments.</param>
+    /// <param name="args">List of optional arguments to be passed to the callback function.</param>
+    abstract call: func: (Transition<'GElement, 'Datum, 'PElement, 'PDatum> -> ResizeArray<obj option> -> obj option) * [<ParamArray>] args: ResizeArray<obj option> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// Return true if this transition contains no (non-null) elements.
+    abstract empty: unit -> bool
+    /// Return the first (non-null) element in this transition. If the transition is empty, returns null.
+    abstract node: unit -> 'GElement option
+    /// Return an array of all (non-null) elements in this transition.
+    abstract nodes: unit -> ResizeArray<'GElement>
+    /// Returns the total number of elements in this transition.
+    abstract size: unit -> float
+    /// Returns the current value of the delay for the first (non-null) element in the transition.
+    /// This is generally useful only if you know that the transition contains exactly one element.
+    abstract delay: unit -> float
+    /// <summary>For each selected element, sets the transition delay to the specified value in milliseconds.
+    /// If a delay is not specified, it defaults to zero.</summary>
+    /// <param name="milliseconds">Number of milliseconds for the delay.</param>
+    abstract delay: milliseconds: float -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, sets the transition delay to the value in milliseconds returned by the
+    /// value function.</summary>
+    /// <param name="milliseconds">A value function which is evaluated for each selected element, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this of the current DOM element (nodes[i]). The return value is a number
+    /// specifying the delay in milliseconds.</param>
+    abstract delay: milliseconds: ValueFn<'GElement, 'Datum, float> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// Returns the current value of the duration for the first (non-null) element in the transition.
+    /// This is generally useful only if you know that the transition contains exactly one element.
+    abstract duration: unit -> float
+    /// For each selected element, sets the transition duration to the specified value in milliseconds.
+    /// If a duration is not specified, it defaults to 250ms.
+    abstract duration: milliseconds: float -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// <summary>For each selected element, sets the transition duration to the value in milliseconds returned by the
+    /// value function.</summary>
+    /// <param name="milliseconds">A value function which is evaluated for each selected element, being passed the current datum (d),
+    /// the current index (i), and the current group (nodes), with this of the current DOM element (nodes[i]). The return value is a number
+    /// specifying the duration in milliseconds.</param>
+    abstract duration: milliseconds: ValueFn<'GElement, 'Datum, float> -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
+    /// Returns the current easing function for the first (non-null) element in the transition.
+    /// This is generally useful only if you know that the transition contains exactly one element.
+    abstract ease: unit -> (float -> float)
+    /// <summary>Specifies the transition easing function for all selected elements. The value must be specified as a function.
+    /// The easing function is invoked for each frame of the animation, being passed the normalized time t in the range [0, 1];
+    /// it must then return the eased time tʹ which is typically also in the range [0, 1].
+    /// A good easing function should return 0 if t = 0 and 1 if t = 1. If an easing function is not specified,
+    /// it defaults to d3.easeCubic.</summary>
+    /// <param name="easingFn">An easing function which is passed the normalized time t in the range [0, 1];
+    /// it must then return the eased time tʹ which is typically also in the range [0, 1].
+    /// A good easing function should return 0 if t = 0 and 1 if t = 1.</param>
+    abstract ease: easingFn: (float -> float) -> Transition<'GElement, 'Datum, 'PElement, 'PDatum>
     
-    type [<AllowNullLiteral>] D3 =
-        /// <summary>Select the first element that matches the specified selector string. If no elements match the selector, returns an empty selection.
-        /// If multiple elements match the selector, only the first matching element (in document order) will be selected.
-        /// 
-        /// The first generic  "GElement" refers to the type of element to be selected. The second generic "OldDatum" refers to the type of the
-        /// datum, on the selected element. This is useful when re-selecting an element with a previously set, know datum type.</summary>
-        /// <param name="selector">CSS selector string</param>
-        abstract select: selector: string -> Selection<'GElement, 'OldDatum, HTMLElement, obj option>
-        /// <summary>Select the specified node element.
-        /// 
-        /// The first generic  "GElement" refers to the type of element to be selected. The second generic "OldDatum" refers to the type of the
-        /// datum, on the selected element. This is useful when re-selecting an element with a previously set, know datum type.</summary>
-        /// <param name="node">An element to be selected</param>
-        abstract select: node: 'GElement -> Selection<'GElement, 'OldDatum, obj, obj>
-        /// Create an empty selection.
-        abstract selectAll: unit -> Selection<obj, obj, obj, obj>
-        /// Create an empty selection.
-   
-        /// The first generic "GElement" refers to the type of element to be selected. The second generic "OldDatum" refers to the type of the
-        /// datum, of a selected element. This is useful when re-selecting elements with a previously set, know datum type.</summary>
-        /// <param name="selector">CSS selector string</param>
-        abstract selectAll: selector: string -> Selection<'GElement, 'OldDatum, HTMLElement, obj option>
-        /// <summary>Select the specified array of nodes.
-        /// 
-        /// The first generic "GElement" refers to the type of element to be selected. The second generic "OldDatum" refers to the type of the
-        /// datum, of a selected element. This is useful when re-selecting elements with a previously set, know datum type.</summary>
-        /// <param name="nodes">An Array of nodes</param>
-        abstract selectAll: nodes: ResizeArray<'GElement> -> Selection<'GElement, 'OldDatum, obj, obj>
-        /// <summary>Select the specified nodes. This signature allows the selection of nodes contained in a NodeList, HTMLCollection or similar data structure.
-        /// 
-        /// The first generic "GElement" refers to the type of element to be selected. The second generic "OldDatum" refers to the type of the
-        /// datum, of a selected element. This is useful when re-selecting elements with a previously set, know datum type.</summary>
-        /// <param name="nodes">An Array-like collection of nodes</param>
-        abstract selectAll: nodes: ArrayLike<'GElement> -> Selection<'GElement, 'OldDatum, obj, obj>
-        /// <summary>Invokes the specified listener, using the specified "that" as "this" context and passing the specified arguments, if any.
-        /// During the invocation, d3.event is set to the specified event; after the listener returns (or throws an error),
-        /// d3.event is restored to its previous value.
-        /// In addition, sets event.sourceEvent to the prior value of d3.event, allowing custom events to retain a reference to the originating native event.
-        /// Returns the value returned by the listener.
-        /// 
-        /// The first generic "Context" refers to the "this" context type in which the listener will be invoked.
-        /// The second generic "Result" specifies the return type of the listener.</summary>
-        /// <param name="event">The event to which d3.event will be set during the listener invocation.</param>
-        /// <param name="listener">The event listener function to be invoked. This function will be invoked with the "this" context, provided
-        /// by the "that" argument of customEvent(...). It will be passed all optional arguments passed to customEvent(...). The function returns
-        /// a value corresponding to the type of the second generic type.</param>
-        /// <param name="that">The "this"" context which will be used for the invocation of listener.</param>
-        /// <param name="args">A list of optional arguments, which will be passed to listener.</param>
-        abstract customEvent: ``event``: BaseEvent * listener: ('Context -> ResizeArray<obj option> -> 'Result) * that: 'Context * [<ParamArray>] args: ResizeArray<obj option> -> 'Result
-        /// <summary>Get (x, y)-coordinates of the current event relative to the specified container element.
-        /// The container may be an HTML or SVG container element, such as a G element or an SVG element.
-        /// The coordinates are returned as a two-element array of numbers [x, y].</summary>
-        /// <param name="container">Container element relative to which coordinates are calculated.</param>
-        abstract mouse: container: ContainerElement -> float * float
-        /// <summary>Returns the x and y coordinates of the touch with the specified identifier associated
-        /// with the current event relative to the specified container.
-        /// The container may be an HTML or SVG container element, such as a G element or an SVG element.
-        /// The coordinates are returned as a two-element array of numbers [x, y] or null if there is no touch with
-        /// the specified identifier in touches, returns null; this can be useful for ignoring touchmove events
-        /// where the only some touches have moved.
-        /// 
-        /// If touches is not specified, it defaults to the current event’s changedTouches property.</summary>
-        /// <param name="container">Container element relative to which coordinates are calculated.</param>
-        /// <param name="identifier">Touch Identifier associated with the current event.</param>
-        abstract touch: container: ContainerElement * identifier: float -> float * float option
-        /// <summary>Return the x and y coordinates of the touch with the specified identifier associated
-        /// with the current event relative to the specified container.
-        /// The container may be an HTML or SVG container element, such as a G element or an SVG element.
-        /// The coordinates are returned as a two-element array of numbers [x, y] or null if there is no touch with
-        /// the specified identifier in touches, returns null; this can be useful for ignoring touchmove events
-        /// where the only some touches have moved.
-        /// 
-        /// If touches is not specified, it defaults to the current event’s changedTouches property.</summary>
-        /// <param name="container">Container element relative to which coordinates are calculated.</param>
-        /// <param name="touches">TouchList to be used when identifying the touch.</param>
-        /// <param name="identifier">Touch Identifier associated with the current event.</param>
-        abstract touch: container: ContainerElement * touches: TouchList * identifier: float -> float * float option
-        /// <summary>Return the x and y coordinates of the touches associated with the current event relative to the specified container.
-        /// The container may be an HTML or SVG container element, such as a G element or an SVG element.
-        /// The coordinates are returned as an array of two-element arrays of numbers [[x1, y1], [x2, y2], …].
-        /// 
-        /// If touches is not specified, it defaults to the current event’s touches property.</summary>
-        /// <param name="container">Container element relative to which coordinates are calculated.</param>
-        /// <param name="touches">TouchList to be used.</param>
-        abstract touches: container: ContainerElement * ?touches: TouchList -> Array<float * float>
-        /// <summary>Returns the x and y coordinates of the specified event relative to the specified container.
-        /// (The event may also be a touch.) The container may be an HTML or SVG container element, such as a G element or an SVG element.
-        /// The coordinates are returned as a two-element array of numbers [x, y].</summary>
-        /// <param name="container">Container element relative to which coordinates are calculated.</param>
-        /// <param name="event">A User interface event (e.g. mouse event, touch or MSGestureEvent) with captured clientX and clientY properties.</param>
-        abstract clientPoint: container: ContainerElement * ``event``: ClientPointEvent -> float * float
-        /// <summary>Returns the value of the style property with the specified name for the specified node.
-        /// If the node has an inline style with the specified name, its value is returned; otherwise, the computed property value is returned.
-        /// See also selection.style.</summary>
-        /// <param name="node">A DOM node (e.g. HTMLElement, SVGElement) for which to retrieve the style property.</param>
-        /// <param name="name">Style property name.</param>
-        abstract style: node: Element * name: string -> string
-        /// Obtain a new local variable
-        /// 
-        /// The generic refers to the type of the variable to store locally.
-        abstract local: unit -> Local<'T>
-        /// <summary>Obtain an object with properties of fully qualified namespace string and
-        /// name of local by parsing a shorthand string "prefix:local". If the prefix
-        /// does not exist in the "namespaces" object provided by d3-selection, then
-        /// the local name is returned as a simple string.</summary>
-        /// <param name="prefixedLocal">A string composed of the namespace prefix and local
-        /// name separated by colon, e.g. "svg:text".</param>
-        abstract ``namespace``: prefixedLocal: string -> U2<NamespaceLocalObject, string>
-        /// <summary>Returns the owner window for the specified node. If node is a node, returns the owner document’s default view;
-        /// if node is a document, returns its default view; otherwise returns the node.</summary>
-        /// <param name="DOMNode">A DOM element</param>
-        abstract window: DOMNode: U3<Window, Document, Element> -> Window
-        /// <summary>Given the specified element name, returns a single-element selection containing
-        /// a detached element of the given name in the current document.</summary>
-        /// <param name="name">tag name of the element to be added.</param>
-        abstract create: name: 'K -> Selection<ElementTagNameMap, obj, obj, obj>
-        /// <summary>Given the specified element name, returns a single-element selection containing
-        /// a detached element of the given name in the current document.</summary>
-        /// <param name="name">Tag name of the element to be added. See "namespace" for details on supported namespace prefixes,
-        /// such as for SVG elements.</param>
-        abstract create: name: string -> Selection<'NewGElement, obj, obj, obj>
-        /// <summary>Given the specified element name, returns a function which creates an element of the given name,
-        /// assuming that "this" is the parent element.</summary>
-        /// <param name="name">Tag name of the element to be added.</param>
-        abstract creator: name: 'K -> (BaseType -> ElementTagNameMap)
-        /// <summary>Given the specified element name, returns a function which creates an element of the given name,
-        /// assuming that "this" is the parent element.
-        /// 
-        /// The generic refers to the type of the new element to be returned by the creator function.</summary>
-        /// <param name="name">Tag name of the element to be added. See "namespace" for details on supported namespace prefixes,
-        /// such as for SVG elements.</param>
-        abstract creator: name: string -> (BaseType -> 'NewGElement)
-        /// <summary>Given the specified selector, returns a function which returns true if "this" element matches the specified selector.</summary>
-        /// <param name="selector">A CSS selector string.</param>
-        abstract matcher: selector: string -> (BaseType -> bool)
-        /// <summary>Given the specified selector, returns a function which returns the first descendant of "this" element
-        /// that matches the specified selector.
-        /// 
-        /// The generic refers to the type of the returned descendant element.</summary>
-        /// <param name="selector">A CSS selector string.</param>
-        abstract selector: selector: string -> (BaseType -> 'DescElement)
-        /// <summary>Given the specified selector, returns a function which returns all descendants of "this" element that match the specified selector.
-        /// 
-        /// The generic refers to the type of the returned descendant element.</summary>
-        /// <param name="selector">A CSS selector string.</param>
-        abstract selectorAll: selector: string -> (BaseType -> NodeListOf<'DescElement>)
+and [<StringEnum>] [<RequireQualifiedAccess>] TransitionStylePriority =
+    | Important
+
+and [<StringEnum>] [<RequireQualifiedAccess>] TransitionStylePriority_ =
+    | Important
+
+and [<StringEnum>] [<RequireQualifiedAccess>] TransitionStyleTweenPriority =
+    | Important
+
+and SelectionOrTransition<'GElement, 'Datum, 'PElement, 'PDatum> =
+    U2<Selection<'GElement, 'Datum, 'PElement, 'PDatum>, Transition<'GElement, 'Datum, 'PElement, 'PDatum>>
+
+type [<AllowNullLiteral>] SelectionFn =
+    [<Emit "$0($1...)">] abstract Invoke: unit -> Selection<HTMLElement, obj option, obj, obj>

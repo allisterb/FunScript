@@ -5,12 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="FunScript.TypeScript.AdditionalTypes.fs" />
-    <Compile Include="FunScript.TypeScript.Binding.lib.dll.fs" />
+    <Compile Include="FunScript.Bindings.TypeScript.fs" />
+    <Compile Include="FunScript.Bindings.AdditionalTypes.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FunScript.Interop\FunScript.Interop.NETStandard.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.3.4" />
   </ItemGroup>
 
 </Project>

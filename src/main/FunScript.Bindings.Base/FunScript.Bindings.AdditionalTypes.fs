@@ -1,6 +1,21 @@
-namespace FunScript
+namespace FunScript.Bindings
 
 open System
+
+open FunScript
+
+type [<AllowNullLiteral>] Promise<'T> =
+    abstract ``then``: ?onfulfilled: ('T->'TResult) * ?onrejected: (obj->'TResult) -> Promise<'TResult>
+    abstract catch: ?onrejected: (obj->'T) -> Promise<'T>
+
+and [<AllowNullLiteral>] PromiseConstructor =
+    [<Emit("new $0($1...)")>] abstract Create: executor: ((obj->unit) -> (obj->unit) -> unit) -> Promise<'T>
+    abstract all: [<ParamArray>] values: obj[] -> Promise<obj>
+    abstract race: values: obj seq -> Promise<obj>
+    abstract reject: reason: obj -> Promise<unit>
+    abstract reject: reason: obj -> Promise<'T>
+    abstract resolve: value: 'T -> Promise<'T>
+    abstract resolve: unit -> Promise<unit>
 
 type CaseRules =
     | None = 0
@@ -13,34 +28,7 @@ type CaseRules =
     /// FooBar -> foo-bar
     | KebabCase = 4
 
-type JsInterfaceAttribute() =
-    inherit Attribute()
-
-/// Used for erased union types and to ignore modules in JS compilation.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type EraseAttribute() =
-    inherit Attribute()
    
-/// The declaration value will be replaced with the JS code.
-type EmitDeclarationAttribute(macro: string) =
-    inherit Attribute()
-
-/// Same as `Emit("$0.methodName($1...)")`
-type EmitMethodAttribute(methodName: string) =
-    inherit Attribute()
-
-/// Same as `Emit("new $0($1...)")`
-type EmitConstructorAttribute() =
-    inherit Attribute()
-
-/// Same as `Emit("$0[$1]{{=$2}}")`
-type EmitIndexerAttribute() =
-    inherit Attribute()
-
-/// Same as `Emit("$0.propertyName{{=$1}}")`
-type EmitPropertyAttribute(propertyName: string) =
-    inherit Attribute()
-
 /// Compile union types as string literals.
 /// More info: http://fable.io/docs/interacting.html#StringEnum-attribute
 [<AttributeUsage(AttributeTargets.Class)>]
@@ -50,7 +38,7 @@ type StringEnumAttribute() =
 
 /// Erased union type to represent one of two possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U2<'a, 'b> =
+type U2<'a, 'b> =
     | Case1 of 'a
     | Case2 of 'b
     static member op_ErasedCast(x:'a) = Case1 x
@@ -58,7 +46,7 @@ type [<Erase>] U2<'a, 'b> =
 
 /// Erased union type to represent one of three possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U3<'a, 'b, 'c> =
+type U3<'a, 'b, 'c> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c
@@ -68,7 +56,7 @@ type [<Erase>] U3<'a, 'b, 'c> =
 
 /// Erased union type to represent one of four possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U4<'a, 'b, 'c, 'd> =
+type U4<'a, 'b, 'c, 'd> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c
@@ -80,7 +68,7 @@ type [<Erase>] U4<'a, 'b, 'c, 'd> =
 
 /// Erased union type to represent one of five possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U5<'a, 'b, 'c, 'd, 'e> =
+type U5<'a, 'b, 'c, 'd, 'e> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c
@@ -94,7 +82,7 @@ type [<Erase>] U5<'a, 'b, 'c, 'd, 'e> =
 
 /// Erased union type to represent one of six possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U6<'a, 'b, 'c, 'd, 'e, 'f> =
+type U6<'a, 'b, 'c, 'd, 'e, 'f> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c
@@ -110,7 +98,7 @@ type [<Erase>] U6<'a, 'b, 'c, 'd, 'e, 'f> =
 
 /// Erased union type to represent one of seven possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U7<'a, 'b, 'c, 'd, 'e, 'f, 'g> =
+type U7<'a, 'b, 'c, 'd, 'e, 'f, 'g> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c
@@ -128,7 +116,7 @@ type [<Erase>] U7<'a, 'b, 'c, 'd, 'e, 'f, 'g> =
 
 /// Erased union type to represent one of eight possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
-type [<Erase>] U8<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h> =
+type U8<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h> =
     | Case1 of 'a
     | Case2 of 'b
     | Case3 of 'c

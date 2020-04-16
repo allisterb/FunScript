@@ -63,6 +63,7 @@
     <Compile Include="RecordTypes.fs" />
     <Compile Include="Tuples.fs" />
     <Compile Include="Compiler.fs" />
+    <Compile Include="TypeScriptMappings.fs" />
   </ItemGroup>
   
   <ItemGroup>
@@ -70,6 +71,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\FunScript.Bindings.Base\FunScript.Bindings.Base.fsproj" />
     <ProjectReference Include="..\FunScript.Interop\FunScript.Interop.NETStandard.fsproj" />
     <ProjectReference Include="..\FunScript.Util\FunScript.Util.csproj" />
   </ItemGroup>

@@ -44,7 +44,8 @@ let inline (==) x y = obj.ReferenceEquals(x, y)
 let inline (!=) x y = not (x == y)
 
 let private getReplacementMethod (replacementMi:MethodInfo) args =
-   if replacementMi.IsGenericMethodDefinition then
+   if replacementMi.Name = "Identity" then replacementMi
+   else if replacementMi.IsGenericMethodDefinition then
       replacementMi.MakeGenericMethod(args)
    else if replacementMi.IsGenericMethod then
       replacementMi.GetGenericMethodDefinition().MakeGenericMethod(args)
