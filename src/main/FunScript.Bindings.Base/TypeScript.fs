@@ -4,20 +4,13 @@ open System
 
 open FunScript
 
-type [<AllowNullLiteral>] Promise<'T> =
-    abstract ``then``: ?onfulfilled: ('T->'TResult) * ?onrejected: (obj->'TResult) -> Promise<'TResult>
-    abstract catch: ?onrejected: (obj->'T) -> Promise<'T>
+/// Compile union type as string literal
+[<AttributeUsage(AttributeTargets.Class)>]
+type StringUnionAttribute() =
+    inherit Attribute()
+    new (caseRules: CaseRules) = StringUnionAttribute()
 
-and [<AllowNullLiteral>] PromiseConstructor =
-    [<Emit("new $0($1...)")>] abstract Create: executor: ((obj->unit) -> (obj->unit) -> unit) -> Promise<'T>
-    abstract all: [<ParamArray>] values: obj[] -> Promise<obj>
-    abstract race: values: obj seq -> Promise<obj>
-    abstract reject: reason: obj -> Promise<unit>
-    abstract reject: reason: obj -> Promise<'T>
-    abstract resolve: value: 'T -> Promise<'T>
-    abstract resolve: unit -> Promise<unit>
-
-type CaseRules =
+and CaseRules =
     | None = 0
     /// FooBar -> fooBar
     | LowerFirst = 1
@@ -28,13 +21,7 @@ type CaseRules =
     /// FooBar -> foo-bar
     | KebabCase = 4
 
-   
-/// Compile union types as string literals.
-/// More info: http://fable.io/docs/interacting.html#StringEnum-attribute
-[<AttributeUsage(AttributeTargets.Class)>]
-type StringEnumAttribute() =
-    inherit Attribute()
-    new (caseRules: CaseRules) = StringEnumAttribute()
+type StringEnumAttribute = StringUnionAttribute
 
 /// Erased union type to represent one of two possible values.
 /// More info: http://fable.io/docs/interacting.html#Erase-attribute
@@ -133,3 +120,16 @@ type U8<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h> =
     static member op_ErasedCast(x:'f) = Case6 x
     static member op_ErasedCast(x:'g) = Case7 x
     static member op_ErasedCast(x:'h) = Case8 x
+
+type [<AllowNullLiteral>] Promise<'T> =
+    abstract ``then``: ?onfulfilled: ('T->'TResult) * ?onrejected: (obj->'TResult) -> Promise<'TResult>
+    abstract catch: ?onrejected: (obj->'T) -> Promise<'T>
+
+and [<AllowNullLiteral>] PromiseConstructor =
+    [<Emit("new $0($1...)")>] abstract Create: executor: ((obj->unit) -> (obj->unit) -> unit) -> Promise<'T>
+    abstract all: [<ParamArray>] values: obj[] -> Promise<obj>
+    abstract race: values: obj seq -> Promise<obj>
+    abstract reject: reason: obj -> Promise<unit>
+    abstract reject: reason: obj -> Promise<'T>
+    abstract resolve: value: 'T -> Promise<'T>
+    abstract resolve: unit -> Promise<unit>

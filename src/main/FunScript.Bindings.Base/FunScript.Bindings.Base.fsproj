@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="FunScript.Bindings.TypeScript.fs" />
-    <Compile Include="FunScript.Bindings.AdditionalTypes.fs" />
+    <Compile Include="TypeScript.fs" />
+    <Compile Include="lib.d.ts.fs" />
   </ItemGroup>
 
   <ItemGroup>
