@@ -2,6 +2,7 @@
 
 open System
 
+open FunScript
 open FunScript.Bindings
 
 type [<AllowNullLiteral>] D3 =
@@ -641,8 +642,8 @@ type [<AllowNullLiteral>] D3 =
     /// The generic corresponds to the data type of domain elements.
     abstract scalePoint: unit -> ScalePoint<'Domain>
 
-
 [<AutoOpen>]
 module Globals =
-    //do Glob
-    let d3 = Unchecked.defaultof<D3>
+    let d3 = createEmpty<D3>()
+
+    let z = {|Diameter = 10 |}

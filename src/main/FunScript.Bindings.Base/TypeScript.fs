@@ -4,27 +4,7 @@ open System
 
 open FunScript
 
-/// Compile union type as string literal
-[<AttributeUsage(AttributeTargets.Class)>]
-type StringUnionAttribute() =
-    inherit Attribute()
-    new (caseRules: CaseRules) = StringUnionAttribute()
-
-and CaseRules =
-    | None = 0
-    /// FooBar -> fooBar
-    | LowerFirst = 1
-    /// FooBar -> foo_bar
-    | SnakeCase = 2
-    /// FooBar -> FOO_BAR
-    | SnakeCaseAllCaps = 3
-    /// FooBar -> foo-bar
-    | KebabCase = 4
-
-type StringEnumAttribute = StringUnionAttribute
-
 /// Erased union type to represent one of two possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U2<'a, 'b> =
     | Case1 of 'a
     | Case2 of 'b
@@ -32,7 +12,6 @@ type U2<'a, 'b> =
     static member op_ErasedCast(x:'b) = Case2 x
 
 /// Erased union type to represent one of three possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U3<'a, 'b, 'c> =
     | Case1 of 'a
     | Case2 of 'b
@@ -42,7 +21,6 @@ type U3<'a, 'b, 'c> =
     static member op_ErasedCast(x:'c) = Case3 x
 
 /// Erased union type to represent one of four possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U4<'a, 'b, 'c, 'd> =
     | Case1 of 'a
     | Case2 of 'b
@@ -54,7 +32,6 @@ type U4<'a, 'b, 'c, 'd> =
     static member op_ErasedCast(x:'d) = Case4 x
 
 /// Erased union type to represent one of five possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U5<'a, 'b, 'c, 'd, 'e> =
     | Case1 of 'a
     | Case2 of 'b
@@ -68,7 +45,6 @@ type U5<'a, 'b, 'c, 'd, 'e> =
     static member op_ErasedCast(x:'e) = Case5 x
 
 /// Erased union type to represent one of six possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U6<'a, 'b, 'c, 'd, 'e, 'f> =
     | Case1 of 'a
     | Case2 of 'b
@@ -84,7 +60,6 @@ type U6<'a, 'b, 'c, 'd, 'e, 'f> =
     static member op_ErasedCast(x:'f) = Case6 x
 
 /// Erased union type to represent one of seven possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U7<'a, 'b, 'c, 'd, 'e, 'f, 'g> =
     | Case1 of 'a
     | Case2 of 'b
@@ -102,7 +77,6 @@ type U7<'a, 'b, 'c, 'd, 'e, 'f, 'g> =
     static member op_ErasedCast(x:'g) = Case7 x
 
 /// Erased union type to represent one of eight possible values.
-/// More info: http://fable.io/docs/interacting.html#Erase-attribute
 type U8<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h> =
     | Case1 of 'a
     | Case2 of 'b

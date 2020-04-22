@@ -5,6 +5,11 @@ open FunScript.Bindings
 
 [<AutoOpen;JS>]
 module Options = 
+    type JessieCodeOptions = {
+        enabled: bool
+        compiled: bool
+    }
+
     type BoardOptions = {
         boundingbox: int array 
         maxBoundingBox: int array
@@ -46,10 +51,10 @@ module Options =
 
     and AxisOptions = {
         name: string
-        ticks: TickOptions
+        ticks: AxisTickOptions
     }
 
-    and TickOptions = {
+    and AxisTickOptions = {
         label: LabelOptions
         tickEndings: int array
         drawZero: bool
@@ -64,9 +69,9 @@ module Options =
         offset: int array    
     }
 
-    and [<StringEnum>] Visibility = Inherit
+    and [<StringUnion>] Visibility = Inherit
     
-    and [<StringEnum>] Anchor = Top | Middle | Bottom | Right | Left
+    and [<StringUnion>] Anchor = Top | Middle | Bottom | Right | Left
     
     and ScreenshotOptions = {
         scale: float
@@ -80,7 +85,7 @@ module Options =
         symbol: string
     }
 
-    and [<StringEnum>] Renderer = Auto | Svg
+    and [<StringUnion>] Renderer = Auto | Svg
     
     and ZoomOptions = {
         enabled: bool
@@ -117,10 +122,10 @@ module Options =
     }
 
     type ElementOptions = {
-        strokeColor: string
-        highlightStrokeColor: string
+        strokeColor: Color
+        highlightStrokeColor: Color
         fillColor:  string
-        highlightFillColor: string
+        highlightFillColor: Color
         strokeOpacity: int
         highlightStrokeOpacity: int
         fillOpacity: int
@@ -134,5 +139,50 @@ module Options =
         visible: bool
         priv: bool
         layer: int
+        dash: int
         shadow: bool
+        trace: U2<bool, string>
+        traceAttributes: Map<String, obj>
+        highlight: bool
+        needsRegularUpdate: bool
+        snapToGrid: bool
+        scalable: bool
+        dragToTopOfLayer: bool
+        draft: DraftOptions
+        isLabel: bool
+    }
+
+    and Color =
+    | None
+    | NamedColor of string
+    | HexColor of string
+
+    and DraftOptions = {
+        draft: bool
+        strokeColor: Color
+        fillColor: Color
+        strokeOpacity: float
+        fillOpacity: float
+        strokeWidth: int
+    }
+
+    type TickOptions = {
+       generateLabelText: obj
+       drawLabels: bool
+       label: Map<string, obj>
+       useUnicodeMinus: bool
+       anchor: Anchor
+       drawZero: bool
+       insertTicks: bool
+       minTicksDistance: int
+       minorHeight: int
+       majorHeight: int
+       tickEndings: int array
+       minorTicks: int
+       scale: int
+       scaleSymbol: string
+       labels: string array
+       maxLabelLength: int
+       precision: float
+       ticksDistance: float
     }

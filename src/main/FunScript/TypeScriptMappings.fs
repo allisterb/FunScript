@@ -1,21 +1,31 @@
 ﻿namespace FunScript
 
-open System
-open System.Collections.Generic
-open System.Text.RegularExpressions
+open FSharp.Quotations
 
+open FunScript.AST
 open FunScript.Bindings
 
 [<AutoOpen>]
 module TypeScriptMappings =
 
     let components = [
-        ExpressionReplacer.createUnsafe <@ fun x -> U2.Case1 x @> <@fun x -> id x @>
-        ExpressionReplacer.createUnsafe <@ fun x -> U2.Case2 x @> <@fun x -> id x @>
+        CompilerComponent.unary <@ U2.Case1 @> id
+        CompilerComponent.unary <@ U2.Case2 @> id
 
-        ExpressionReplacer.createUnsafe <@ fun x -> U3.Case1 x @> <@fun x -> id x @>
-        ExpressionReplacer.createUnsafe <@ fun x -> U3.Case2 x @> <@fun x -> id x @>
-        ExpressionReplacer.createUnsafe <@ fun x -> U3.Case3 x @> <@fun x -> id x @>
+        CompilerComponent.unary <@ U3.Case1 @> id
+        CompilerComponent.unary <@ U3.Case1 @> id
+        CompilerComponent.unary <@ U3.Case3 @> id
+
+        CompilerComponent.unary <@ U4.Case1 @> id
+        CompilerComponent.unary <@ U4.Case1 @> id
+        CompilerComponent.unary <@ U4.Case3 @> id
+        CompilerComponent.unary <@ U4.Case4 @> id
+        //ExpressionReplacer.createUnsafe <@ fun x -> U2.Case1 x @> <@fun x -> id x @>
+        //ExpressionReplacer.createUnsafe <@ fun x -> U2.Case2 x @> <@fun x -> id x @>
+
+        //ExpressionReplacer.createUnsafe <@ fun x -> U3.Case1 x @> <@fun x -> id x @>
+        //ExpressionReplacer.createUnsafe <@ fun x -> U3.Case2 x @> <@fun x -> id x @>
+        //ExpressionReplacer.createUnsafe <@ fun x -> U3.Case3 x @> <@fun x -> id x @>
     //let GlobalVars = new List<string>()
 
     //let postProcess s = 
