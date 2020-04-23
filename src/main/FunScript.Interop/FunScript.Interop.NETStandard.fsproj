@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="Attributes.fs" />
+    <Compile Include="Interop.fs" />
   </ItemGroup>
 
   <ItemGroup>

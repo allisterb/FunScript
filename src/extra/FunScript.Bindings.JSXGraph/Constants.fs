@@ -4,12 +4,6 @@ open FunScript
 
 [<AutoOpen;JS>]
 module Constants =
-    // coords
-    [<Literal>] 
-    let COORDS_BY_USER= 0x0001
-    [<Literal>] 
-    let COORDS_BY_SCREEN= 0x0002
-
     // object types
     [<Literal>] 
     let OBJECT_TYPE_ARC= 1

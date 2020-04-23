@@ -38,13 +38,3 @@ and CaseRules =
     | KebabCase = 4
 
 type StringEnumAttribute = StringUnionAttribute
-
-namespace global
-
-open FunScript
-
-[<AutoOpen>]
-module TypeExtensions =
-    
-    [<JSEmitInlineAttribute("({})")>]
-    let createEmpty<'a>() : 'a = failwith "never"

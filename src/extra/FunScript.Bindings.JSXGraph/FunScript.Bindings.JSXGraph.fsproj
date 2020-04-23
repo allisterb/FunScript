@@ -7,11 +7,12 @@
   <ItemGroup>
     <Compile Include="Constants.fs" />
     <Compile Include="Options.fs" />
-    <Compile Include="GeometryElement.fs" />
+    <Compile Include="Board.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\main\FunScript.Bindings.Base\FunScript.Bindings.Base.fsproj" />
+    <ProjectReference Include="..\..\main\FunScript.Interop\FunScript.Interop.NETStandard.fsproj" />
   </ItemGroup> 
 
 </Project>
